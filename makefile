@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall
-LDFLAGS = 
+LDFLAGS = -lm
 OBJ = memory-management.o  allocator.o
 EXEC = memory-management
 

@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "allocator.h"
 #define MAX_SIZE 60
 #define BEST_FIT 0
