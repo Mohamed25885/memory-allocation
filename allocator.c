@@ -3,17 +3,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include "allocator.h"
+#include "linked_list.h"
 #define MAX_SIZE 60
 #define BEST_FIT 0
 #define WORST_FIT 1
 int memory[MAX_SIZE] = {-1};
 u_int32_t id_initializer = 0;
 
-void search_available_memory_slots(nodeItem *, int size, int mode);
+void *search_available_memory_slots(Node *, int size, int mode);
 
-void min_slot(nodeItem *node, nodeItem *array, int size);
+void min_slot(Node *node, Node *array, int size);
 
-void max_slot(nodeItem *node, nodeItem *array, int size);
+void max_slot(Node *node, Node *array, int size);
 
 void initialize_memory()
 {
@@ -22,7 +23,7 @@ void initialize_memory()
         memory[i] = -1;
     }
 }
-nodeItem *allocate_first_fit_memory(int size)
+void *allocate_first_fit_memory(int size)
 {
     int index = -1;
     u_int32_t size_counter = 0;
@@ -74,31 +75,30 @@ nodeItem *allocate_first_fit_memory(int size)
         memory[j] = id_initializer;
     }
 
-    nodeItem *node = malloc(sizeof(nodeItem));
-    node->id = id_initializer;
+    Node *node = malloc(sizeof(Node));
+    //node->id = id_initializer;
+    node->address = malloc(size);
     node->size = size;
     node->index = index;
-    return node;
+    push(node);
+    return node->address;
 }
 
-nodeItem *allocate_best_fit_memory(int size)
+void *allocate_best_fit_memory(int size)
 {
-    nodeItem *node = (nodeItem *)malloc(sizeof(nodeItem));
-    search_available_memory_slots(node, size, BEST_FIT);
-
-    return node;
+    Node *node = (Node *)malloc(sizeof(Node));
+    return search_available_memory_slots(node, size, BEST_FIT);
 }
 
-nodeItem* allocate_worst_fit_memory(int size)
+void *allocate_worst_fit_memory(int size)
 {
-    nodeItem* node = (nodeItem *)malloc(sizeof(nodeItem));
-    search_available_memory_slots(node, size, WORST_FIT);
-
-    return node;
+    Node *node = (Node *)malloc(sizeof(Node));
+    return search_available_memory_slots(node, size, WORST_FIT);
 }
 
-void free_memory(nodeItem *node)
+void free_memory(void *address)
 {
+    Node *node = find_node(address);
     for (size_t i = node->index; i < (node->size + node->index); i++)
     {
         memory[i] = -1;
@@ -106,18 +106,19 @@ void free_memory(nodeItem *node)
 
     node->size = 0;
     node->index = 0;
-    free(node);
+    deleteN(node);
 }
 
-void print_node(nodeItem *node)
+/* void print_node(Node *node)
 {
 
-    printf("id: %d\n", node->id);
+    printf("id: %p\n", node->id);
+    printf("address: %p\n", node->address);
     printf("size: %d\n", node->size);
     printf("index: %d\n", node->index);
     printf("global: %d\n", id_initializer);
     printf("\n");
-}
+} */
 
 void print_memory()
 {
@@ -128,13 +129,13 @@ void print_memory()
     printf("\n");
 }
 
-void search_available_memory_slots(nodeItem *node, int size, int mode)
+void *search_available_memory_slots(Node *node, int size, int mode)
 {
     int index = -1;
     u_int32_t size_counter = 0, memory_tracer_counter = 0;
     u_int8_t flag = 0, memory_tracer_size = 10;
     id_initializer++;
-    nodeItem *memory_tracer = (nodeItem *)malloc(sizeof(nodeItem) * ((int)ceil(MAX_SIZE / (memory_tracer_size))));
+    Node *memory_tracer = (Node *)malloc(sizeof(Node) * ((int)ceil(MAX_SIZE / (memory_tracer_size))));
 
     for (int i = 0; i < MAX_SIZE; i++)
     {
@@ -171,10 +172,10 @@ void search_available_memory_slots(nodeItem *node, int size, int mode)
                     if (memory_tracer_counter >= ((int)ceil(MAX_SIZE / (memory_tracer_size - 2))))
                     {
                         memory_tracer_size -= 2;
-                        memory_tracer = (nodeItem *)realloc(memory_tracer, ((int)ceil(MAX_SIZE / (memory_tracer_size))));
+                        memory_tracer = (Node *)realloc(memory_tracer, ((int)ceil(MAX_SIZE / (memory_tracer_size))));
                     }
 
-                    nodeItem node = {.index = index, .size = size_counter};
+                    Node node = {.index = index, .size = size_counter};
                     memory_tracer[memory_tracer_counter++] = node;
                 }
 
@@ -186,7 +187,7 @@ void search_available_memory_slots(nodeItem *node, int size, int mode)
 
     if (size_counter >= size)
     {
-        nodeItem node = {.index = index, .size = size_counter};
+        Node node = {.index = index, .size = size_counter};
         memory_tracer[memory_tracer_counter++] = node;
     }
     printf("ID: %d\n", id_initializer);
@@ -219,11 +220,15 @@ void search_available_memory_slots(nodeItem *node, int size, int mode)
      printf("\n");
      print_memory(); */
 
-    node->id = id_initializer;
-    return node;
+    //node->id = id_initializer;
+    node->address = malloc(size);
+    node->size = size;
+    node->index = index;
+    push(node);
+    return node->address;
 }
 
-void min_slot(nodeItem *node, nodeItem *array, int size)
+void min_slot(Node *node, Node *array, int size)
 {
     *node = array[0];
 
@@ -236,7 +241,7 @@ void min_slot(nodeItem *node, nodeItem *array, int size)
     }
 }
 
-void max_slot(nodeItem *node, nodeItem *array, int size)
+void max_slot(Node *node, Node *array, int size)
 {
     *node = array[0];
 

@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall
 LDFLAGS = -lm
-OBJ = memory-management.o  allocator.o
-EXEC = memory-management
+OBJ = memory_management.o  allocator.o linked_list.o
+EXEC = memory_management
 
 all: $(EXEC)
 
