@@ -8,7 +8,7 @@ Node **head;
 
 void initialize_list()
 {
-    head = (Node *)malloc(sizeof(Node));
+    head = (Node **)malloc(sizeof(Node *));
 }
 
 void printList()
@@ -24,7 +24,7 @@ void printList()
     printf("\n\n");
 }
 
-Node* find_node(void* address)
+Node *find_node(void *address)
 {
     Node *temp = *head;
 
@@ -37,12 +37,17 @@ Node* find_node(void* address)
     return NULL;
 }
 
-void push(Node* new_node)
+void *push(int size, int index)
 {
-    
-    new_node->next = (*head);
 
-    (*head) = new_node;
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->address = malloc(size);
+    node->size = size;
+    node->index = index;
+
+    node->next = (*head);
+    (*head) = node;
+    return node->address;
 }
 
 void deleteN(Node *node)
@@ -52,11 +57,11 @@ void deleteN(Node *node)
 
     if (temp != NULL && temp == node)
     {
-        *head = temp->next; 
-        free(node);           
+        *head = temp->next;
+        free(node);
+        free(node->address);
         return;
     }
-
 
     while (temp != NULL && temp != node)
     {
@@ -69,5 +74,6 @@ void deleteN(Node *node)
 
     prev->next = temp->next;
 
-    free(node); 
+    free(node);
+    free(node->address);
 }

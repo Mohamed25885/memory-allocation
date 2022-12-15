@@ -4,6 +4,7 @@
 #include "linked_list.h"
 int main(int argc, char const *argv[])
 {
+
     initialize_list();
     initialize_memory();
 
@@ -16,9 +17,11 @@ int main(int argc, char const *argv[])
     allocate_worst_fit_memory(4);
 
     allocate_worst_fit_memory(15);
+    
+    //allocate_worst_fit_memory(8);
 
     print_memory();
-    printList();
+    //printList();
 
     return 0;
 }
