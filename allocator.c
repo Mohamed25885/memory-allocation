@@ -8,14 +8,17 @@
 #define MAX_SIZE 60
 #define BEST_FIT 0
 #define WORST_FIT 1
+#define FIRST_FIT 2
 int memory[MAX_SIZE] = {-1};
 u_int32_t id_initializer = 0;
+
+void insert_to_memory_tracer(int new_size, int new_index, int size, Node *memory_tracer, u_int8_t *memory_tracer_size, int *memory_tracer_counter);
 void *search_available_memory_slots(int size, int mode);
 
-// return ret_array[2] = {index, size}
+// return index
 int min_slot(Node *array, int size);
 
-// return ret_array[2] = {index, size}
+// return index
 int max_slot(Node *array, int size);
 
 void initialize_memory()
@@ -27,57 +30,7 @@ void initialize_memory()
 }
 void *allocate_first_fit_memory(int size)
 {
-    int index = -1;
-    u_int32_t size_counter = 0;
-    u_int8_t flag = 0;
-    id_initializer++;
-    for (int i = 0; i < MAX_SIZE; i++)
-    {
-        if (size_counter == size) // exit if the allocated size equals to the requested size
-        {
-            break;
-        }
-        size_counter++;
-
-        if (!flag) // store the index of the first captured free memory
-        {
-            index = i;
-            flag = 1;
-        }
-        /* if (memory[i] < 0) // store the id of the current node if the memory is free
-        {
-            memory[i] = id_initializer;
-        } */
-        if (memory[i] >= 0)
-        {
-            // if the current memory space is already assigned
-
-            flag = 0; // set the flag flase, so that the index gets reassigned
-
-            size_counter--;
-
-            // if the next memory space is not empty, and the previous one is the current id, (keeping in mind that the size_count < size)
-            if (i >= 1 && memory[i + 1] > 0 && memory[i - 1] < 0)
-            {
-                /* for (int j = index; j < i; j++) // delocate the allocated memory since it means the space isnt enough to fit the request
-                {
-                    memory[j] = -1;
-                } */
-                size_counter = 0; // set the counter to zero to start counting again
-            }
-            index = -1;
-        }
-    }
-
-    assert(("Memory is full", index != -1));
-    assert(("Requested memory is more than that consecutively available", size_counter == size));
-
-    for (int j = index; j < (size + index); j++) // allocate memory for the given request
-    {
-        memory[j] = id_initializer;
-    }
-
-    return push(size, index);
+    return search_available_memory_slots(size, FIRST_FIT);
 }
 
 void *allocate_best_fit_memory(int size)
@@ -87,9 +40,8 @@ void *allocate_best_fit_memory(int size)
 
 void *allocate_worst_fit_memory(int size)
 {
-    
-    void* holder =  search_available_memory_slots(size, WORST_FIT);
-    return holder;
+
+    return search_available_memory_slots(size, WORST_FIT);
 }
 
 void free_memory(void *address)
@@ -99,24 +51,9 @@ void free_memory(void *address)
     {
         memory[i] = -1;
     }
-    /* printf("%d", node == NULL);
-    for (int i = 0; i < 4; i++)
-    {
-        printf("%d\t", node[i]);
-    } */
+
     deleteN(node);
 }
-
-/* void print_node(Node *node)
-{
-
-    printf("id: %p\n", node->id);
-    printf("address: %p\n", node->address);
-    printf("size: %d\n", node->size);
-    printf("index: %d\n", node->index);
-    printf("global: %d\n", id_initializer);
-    printf("\n");
-} */
 
 void print_memory()
 {
@@ -129,82 +66,75 @@ void print_memory()
 
 void *search_available_memory_slots(int size, int mode)
 {
-    int index = -1, memory_tracer_counter = 0;
-    u_int32_t size_counter = 0 ;
-    u_int8_t flag = 0, memory_tracer_size = 10;
+
+    u_int8_t memory_tracer_size = 10;
     id_initializer++;
-    Node *memory_tracer = (Node *)malloc(sizeof(Node) * ((int)ceil(MAX_SIZE / (memory_tracer_size))));
+    Node *memory_tracer = (Node *)malloc(sizeof(Node) * ((int)ceil(MAX_SIZE / (memory_tracer_size)))), *current = getHead(), *prev = getHead();
 
-    for (int i = 0; i < MAX_SIZE; i++)
+    int new_index = 0, new_size = MAX_SIZE, memory_tracer_counter = 0;
+    for (int i = 0; i < MAX_SIZE && current != NULL; i++, prev = current, current = current->next)
     {
-
-        size_counter++;
-
-        if (!flag) // store the index of the first captured free memory
+        if (i == 0)
         {
-            index = i;
-            flag = 1;
-        }
-        /* if (memory[i] < 0) // store the id of the current node if the memory is free
-        {
-            memory[i] = id_initializer;
-        } */
-        if (memory[i] >= 0)
-        {
-            // if the current memory space is already assigned
-
-            flag = 0; // set the flag flase, so that the index gets reassigned
-
-            size_counter--;
-
-            // if the next memory space is not empty, and the previous one is the current id, (keeping in mind that the size_count < size)
-            if (i >= 1 && memory[i + 1] > 0 && memory[i - 1] < 0)
+            if (current->index == 0)
             {
-                /* for (int j = index; j < i; j++) // delocate the allocated memory since it means the space isnt enough to fit the request
-                {
-                    memory[j] = -1;
-                } */
-                if (size_counter >= size) // exit if the allocated size equals to the requested size
-                {
-
-                    if (memory_tracer_counter >= ((int)ceil(MAX_SIZE / (memory_tracer_size - 2))))
-                    {
-                        memory_tracer_size -= 2;
-                        memory_tracer = (Node *)realloc(memory_tracer, ((int)ceil(MAX_SIZE / (memory_tracer_size))));
-                    }
-
-                    Node node = {.index = index, .size = size_counter};
-                    memory_tracer[memory_tracer_counter++] = node;
-                }
-
-                size_counter = 0; // set the counter to zero to start counting again
+                new_index = current->index + current->size;
+                new_size = MAX_SIZE - new_index;
             }
-            index = -1;
+            else
+            {
+
+                if (current->index >= size)
+                {
+                    new_size = current->index;
+                    new_index = 0;
+
+                    insert_to_memory_tracer(new_size, new_index, size, memory_tracer, &memory_tracer_size, &memory_tracer_counter);
+                }
+            }
+
+            continue;
+        }
+
+        if (prev->index + prev->size == current->index)
+        {
+            new_index = current->index + current->size;
+            new_size = MAX_SIZE - new_index;
+        }
+        else
+        {
+            new_index = prev->index + prev->size;
+            new_size = current->index - new_index;
+            insert_to_memory_tracer(new_size, new_index, size, memory_tracer, &memory_tracer_size, &memory_tracer_counter);
         }
     }
 
-    if (size_counter >= size)
+    if (getHead() == NULL || (new_index > 0 && new_size >= size && prev == getHead()))
     {
 
-        
-        Node node = {.index = index, .size = size_counter};
-        memory_tracer[memory_tracer_counter++] = node;
+        insert_to_memory_tracer(new_size, new_index, size, memory_tracer, &memory_tracer_size, &memory_tracer_counter);
+    }
+    if (prev != NULL && (prev->index + prev->size) >= size)
+    {
+
+        insert_to_memory_tracer(MAX_SIZE - (prev->index + prev->size), prev->index + prev->size, size, memory_tracer, &memory_tracer_size, &memory_tracer_counter);
     }
 
-    if (memory_tracer_counter<= 0)
+    printf("REQUEST: %d\n", size);
+    printf("memory_tracer_counter: %d\n", memory_tracer_counter);
+    for (int i = 0; i < memory_tracer_counter; i++)
+    {
+        printf("size: %d", memory_tracer[i].size);
+        printf("\tindex: %d\n", memory_tracer[i].index);
+    }
+
+    if (memory_tracer_counter <= 0)
     {
         fprintf(stderr, "%s\n", "Requested memory is more than that consecutively available");
         exit(1);
     }
 
-    /* printf("REQUEST: %d\n", size);
-    for (int i = 0; i < memory_tracer_counter; i++)
-    {
-        printf("size: %d", memory_tracer[i].size);
-        printf("\tindex: %d\n", memory_tracer[i].index);
-    } */
-    
-    assert(("Memory is full", index != -1));
+    // assert(("Memory is full", index != -1));
 
     int slot_index;
     switch (mode)
@@ -213,8 +143,12 @@ void *search_available_memory_slots(int size, int mode)
         slot_index = min_slot(memory_tracer, memory_tracer_counter);
         break;
 
-    default:
+    case WORST_FIT:
         slot_index = max_slot(memory_tracer, memory_tracer_counter);
+        break;
+
+    default:
+        slot_index = memory_tracer[0].index;
         break;
     }
 
@@ -222,11 +156,24 @@ void *search_available_memory_slots(int size, int mode)
     {
         memory[j] = id_initializer;
     }
-    /*  printf("id_initializer: %d\n", id_initializer);
-     printf("\n");
-     print_memory(); */
 
+    free(memory_tracer);
     return push(size, slot_index);
+}
+
+void insert_to_memory_tracer(int new_size, int new_index, int size, Node *memory_tracer, u_int8_t *memory_tracer_size, int *memory_tracer_counter)
+{
+    if (new_size >= size)
+    {
+        if ((*memory_tracer_counter) >= ((int)ceil(MAX_SIZE / ((*memory_tracer_size) - 2))))
+        {
+            memory_tracer_size -= 2;
+            memory_tracer = (Node *)realloc(memory_tracer, ((int)ceil(MAX_SIZE / (*memory_tracer_size))));
+        }
+
+        Node node = {.index = new_index, .size = new_size};
+        memory_tracer[(*memory_tracer_counter)++] = node;
+    }
 }
 
 int min_slot(Node *array, int size)
@@ -257,7 +204,7 @@ int max_slot(Node *array, int size)
     // Loop through the array
     for (int i = 0; i < size; i++)
     {
-        // Compare elements of array with min
+        // Compare elements of array with max
         if ((array[i].size) > cmp_size)
         {
             index = array[i].index;

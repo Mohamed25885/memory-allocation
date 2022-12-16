@@ -14,5 +14,6 @@ void initialize_list();
 void* push(int size, int index);
 void deleteN(Node *node);
 void printList();
+Node *getHead();
 Node *find_node(void *address);
 #endif
