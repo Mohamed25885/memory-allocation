@@ -5,8 +5,9 @@
 ## Installation
 1. Make sure to use Linux Based OS
 1. Install gcc
-1. run ```make all``` to complie and link o files
-1. run ```memory_management -f "process.json" -bf ```  
+2. install json-c using ``` sudo apt install libjson-c-dev ```
+3. run ```make all``` to complie and link o files
+4. run ```memory_management -f "process.json" -bf ```  
 
 ## Arguments
 | Argument | Description                                                    |
