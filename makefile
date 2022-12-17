@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall
-LDFLAGS = -lm
-OBJ = memory_management.o  allocator.o linked_list.o
+LDFLAGS = -lm -ljson-c
+OBJ = memory_management.o  allocator.o linked_list.o json_handler.o
 EXEC = memory_management
 
 all: $(EXEC)

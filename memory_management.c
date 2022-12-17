@@ -1,27 +1,47 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 #include "allocator.h"
 #include "linked_list.h"
+#include "json_handler.h"
 int main(int argc, char const *argv[])
 {
 
     initialize_list();
     initialize_memory();
+    int fit_mod = -1;
+    char *filename;
 
-    int *nodeOne = (int *)allocate_best_fit_memory(sizeof(int));
+    assert(("Invalid Arguments", !(argc % 2)));
 
-    allocate_best_fit_memory(30);
+    for (int i = 0; i < argc; i++)
+    {
+        if (!strcmp(argv[i], "-f"))
+        {
+            filename = (char *)argv[i + 1];
+        }
+        else if (!strcmp(argv[i], "-ff") && fit_mod < 0)
+        {
+            fit_mod = FIRST_FIT;
+        }
+        else if (!strcmp(argv[i], "-bf") && fit_mod < 0)
+        {
+            fit_mod = BEST_FIT;
+        }
+        else if (!strcmp(argv[i], "-wf") && fit_mod < 0)
+        {
+            fit_mod = WORST_FIT;
+        }
+    }
 
-    free_memory(nodeOne);
+    if (filename != NULL && fit_mod >= 0)
+    {
+        json_deserialization(filename, fit_mod);
+    }
 
-    allocate_best_fit_memory(4);
-
-    allocate_best_fit_memory(15);
-    
-    //allocate_worst_fit_memory(8);
-
-    print_memory();
-    //printList();
-
+    /*
+     print_list();
+     // print_memory();
+     // getc(stdin); */
     return 0;
 }

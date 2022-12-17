@@ -1,19 +1,18 @@
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 #include "allocator.h"
 #include "linked_list.h"
+#define MAX_SIZE 6000
 
-#define MAX_SIZE 60
-#define BEST_FIT 0
-#define WORST_FIT 1
-#define FIRST_FIT 2
+
 int memory[MAX_SIZE] = {-1};
-u_int32_t id_initializer = 0;
+u_int32_t global_id = 0;
 
 void insert_to_memory_tracer(int new_size, int new_index, int size, Node *memory_tracer, u_int8_t *memory_tracer_size, int *memory_tracer_counter);
-void *search_available_memory_slots(int size, int mode);
+
+void *allocate_memory(int size, const char *name, int mode);
 
 // return index
 int min_slot(Node *array, int size);
@@ -28,47 +27,12 @@ void initialize_memory()
         memory[i] = -1;
     }
 }
-void *allocate_first_fit_memory(int size)
+
+void *allocate_memory(int size, const char *name, int mode)
 {
-    return search_available_memory_slots(size, FIRST_FIT);
-}
-
-void *allocate_best_fit_memory(int size)
-{
-    return search_available_memory_slots(size, BEST_FIT);
-}
-
-void *allocate_worst_fit_memory(int size)
-{
-
-    return search_available_memory_slots(size, WORST_FIT);
-}
-
-void free_memory(void *address)
-{
-    Node *node = find_node(address);
-    for (size_t i = node->index; i < (node->size + node->index); i++)
-    {
-        memory[i] = -1;
-    }
-
-    deleteN(node);
-}
-
-void print_memory()
-{
-    for (int i = 0; i < MAX_SIZE; i++)
-    {
-        printf("[%d] ", memory[i]);
-    }
-    printf("\n");
-}
-
-void *search_available_memory_slots(int size, int mode)
-{
-
+    assert(("Invalid Memory Allocation Mode", (mode >=0 && mode < 3)));
     u_int8_t memory_tracer_size = 10;
-    id_initializer++;
+    global_id++;
     Node *memory_tracer = (Node *)malloc(sizeof(Node) * ((int)ceil(MAX_SIZE / (memory_tracer_size)))), *current = getHead(), *prev = getHead();
 
     int new_index = 0, new_size = MAX_SIZE, memory_tracer_counter = 0;
@@ -120,21 +84,19 @@ void *search_available_memory_slots(int size, int mode)
         insert_to_memory_tracer(MAX_SIZE - (prev->index + prev->size), prev->index + prev->size, size, memory_tracer, &memory_tracer_size, &memory_tracer_counter);
     }
 
-    printf("REQUEST: %d\n", size);
+    /* printf("REQUEST: %d\n", size);
     printf("memory_tracer_counter: %d\n", memory_tracer_counter);
     for (int i = 0; i < memory_tracer_counter; i++)
     {
         printf("size: %d", memory_tracer[i].size);
         printf("\tindex: %d\n", memory_tracer[i].index);
-    }
+    } */
 
     if (memory_tracer_counter <= 0)
     {
         fprintf(stderr, "%s\n", "Requested memory is more than that consecutively available");
         exit(1);
     }
-
-    // assert(("Memory is full", index != -1));
 
     int slot_index;
     switch (mode)
@@ -154,11 +116,42 @@ void *search_available_memory_slots(int size, int mode)
 
     for (int j = slot_index; j < (size + slot_index); j++) // allocate memory for the given request
     {
-        memory[j] = id_initializer;
+        memory[j] = global_id;
     }
 
     free(memory_tracer);
-    return push(size, slot_index);
+    return push(size, slot_index, name);
+}
+
+void free_memory_with_name(const char *name)
+{
+    Node *node = find_node_with_name(name);
+    
+    for (size_t i = node->index; i < (node->size + node->index); i++)
+    {
+        memory[i] = -1;
+    }
+
+    delete_name(node->name);
+}
+void free_memory(void *address)
+{
+    Node *node = find_node(address);
+    for (size_t i = node->index; i < (node->size + node->index); i++)
+    {
+        memory[i] = -1;
+    }
+
+    deleteN(node);
+}
+
+void print_memory()
+{
+    for (int i = 0; i < MAX_SIZE; i++)
+    {
+        printf("[%d] ", memory[i]);
+    }
+    printf("\n");
 }
 
 void insert_to_memory_tracer(int new_size, int new_index, int size, Node *memory_tracer, u_int8_t *memory_tracer_size, int *memory_tracer_counter)

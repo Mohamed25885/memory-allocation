@@ -2,6 +2,7 @@
 
 #include "linked_list.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 Node **head;
@@ -15,14 +16,13 @@ Node *getHead()
     return *head;
 }
 
-void printList()
+void print_list()
 {
     Node *temp = *head;
 
     while (temp)
     {
-        printf("[%p -> %d] [%p]->%p\n", (temp)->address, temp->index, temp,
-               (temp)->next);
+        printf("(%s)[%d -> %d]\n", (temp)->name, temp->index, (temp->index + temp->size));
         temp = (temp)->next;
     }
     printf("\n\n");
@@ -40,13 +40,26 @@ Node *find_node(void *address)
     }
     return NULL;
 }
+Node *find_node_with_name(const char *name)
+{
+    Node *temp = *head;
 
-void *push(int size, int index)
+    while (temp)
+    {
+        if (!strcmp(temp->name, name))
+            return temp;
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+void *push(int size, int index, const char *name)
 {
 
     Node *new_node = (Node *)malloc(sizeof(Node));
     new_node->address = malloc(size);
     new_node->size = size;
+    new_node->name = name;
     new_node->index = index;
 
     Node *current;
@@ -79,8 +92,8 @@ void deleteN(Node *node)
     if (temp != NULL && temp == node)
     {
         *head = temp->next;
-        free(node);
         free(node->address);
+        free(node);
         return;
     }
 
@@ -95,6 +108,33 @@ void deleteN(Node *node)
 
     prev->next = temp->next;
 
-    free(node);
     free(node->address);
+    free(node);
+}
+void delete_name(const char *name)
+{
+    // Store head node
+    Node *temp = *head, *prev;
+
+    if (temp != NULL && !strcmp(temp->name, name))
+    {
+        *head = temp->next;
+        free(temp->address);
+        free(temp);
+        return;
+    }
+
+    while (temp != NULL && strcmp(temp->name, name))
+    {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL)
+        return;
+
+    prev->next = temp->next;
+
+    free(temp->address);
+    free(temp);
 }
