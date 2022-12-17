@@ -34,11 +34,11 @@
 | process | unqiue id for each process                          |
 |         |                                                     |
 ###  2. free
-| Field   | Description                                             |
-| ------- | ------------------------------------------------------- |
-| name    | the name of already allocated memory inside the process |
-| process | unqiue id for each process                              |
-|         |                                                         |
+| Field   | Description                                                         |
+| ------- | ------------------------------------------------------------------- |
+| name    | the name of already allocated memory inside the process             |
+| process | the id of the process to free the allocated memory made by the name |
+|         |                                                                     |
 
 **name field should be unqiue for each proccess**
     
