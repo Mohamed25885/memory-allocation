@@ -30,7 +30,8 @@ void initialize_memory()
 
 void *allocate_memory(int size, const char *name, int mode)
 {
-    assert(("Invalid Memory Allocation Mode", (mode >=0 && mode < 3)));
+
+    assert(("Invalid Memory Allocation Mode", (mode >= BEST_FIT && mode <= FIRST_FIT)));
     u_int8_t memory_tracer_size = 10;
     global_id++;
     Node *memory_tracer = (Node *)malloc(sizeof(Node) * ((int)ceil(MAX_SIZE / (memory_tracer_size)))), *current = getHead(), *prev = getHead();
@@ -84,14 +85,6 @@ void *allocate_memory(int size, const char *name, int mode)
         insert_to_memory_tracer(MAX_SIZE - (prev->index + prev->size), prev->index + prev->size, size, memory_tracer, &memory_tracer_size, &memory_tracer_counter);
     }
 
-    /* printf("REQUEST: %d\n", size);
-    printf("memory_tracer_counter: %d\n", memory_tracer_counter);
-    for (int i = 0; i < memory_tracer_counter; i++)
-    {
-        printf("size: %d", memory_tracer[i].size);
-        printf("\tindex: %d\n", memory_tracer[i].index);
-    } */
-
     if (memory_tracer_counter <= 0)
     {
         fprintf(stderr, "%s\n", "Requested memory is more than that consecutively available");
@@ -120,6 +113,7 @@ void *allocate_memory(int size, const char *name, int mode)
     }
 
     free(memory_tracer);
+    printf("Allocate: (%s)[%d -> %d]\n", name, slot_index, slot_index + size);
     return push(size, slot_index, name);
 }
 
@@ -131,7 +125,7 @@ void free_memory_with_name(const char *name)
     {
         memory[i] = -1;
     }
-
+    printf("Free: (%s)[%d -> %d]\n", name, node->index, node->index + node->size);
     delete_name(node->name);
 }
 void free_memory(void *address)

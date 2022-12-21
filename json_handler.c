@@ -10,11 +10,7 @@ void json_deserialization(char *filename, int mode)
     struct json_object *processes_obj,
         *process_array,
         *process_array_obj,
-        *process_array_obj_type /* ,
-                                 *process_array_obj_name,
-                                 *process_array_obj_size,
-                                 */
-        ;
+        *process_array_obj_type;
     int arraylen, i;
 
     processes_obj = json_object_from_file(filename);
@@ -29,7 +25,6 @@ void json_deserialization(char *filename, int mode)
         process_array_obj = json_object_array_get_idx(process_array, i);
         // get the name attribute in the i-th object
         process_array_obj_type = json_object_object_get(process_array_obj, "type");
-        printf("%d\t", i);
         if (!strcmp(json_object_get_string(process_array_obj_type), "allocate"))
         {
 
@@ -37,12 +32,12 @@ void json_deserialization(char *filename, int mode)
         }
         else if (!strcmp(json_object_get_string(process_array_obj_type), "free"))
         {
+            run_free_worker(process_array_obj);
         }
         else
         {
-            fprintf(stderr, "Undefined Type: %s", json_object_get_string(process_array_obj_type));
+            fprintf(stderr, "Undefined Type: %s\n", json_object_get_string(process_array_obj_type));
         }
-        printf("\n");
     }
 }
 

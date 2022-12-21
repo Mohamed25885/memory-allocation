@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "allocator.h"
 #include "linked_list.h"
@@ -9,7 +10,8 @@ int main(int argc, char const *argv[])
 
     initialize_list();
     initialize_memory();
-    int fit_mod = -1;
+    int8_t fit_mod = -1;
+    // int8_t has_mode = -1;
     char *filename;
 
     assert(("Invalid Arguments", !(argc % 2)));
@@ -19,6 +21,11 @@ int main(int argc, char const *argv[])
         if (!strcmp(argv[i], "-f"))
         {
             filename = (char *)argv[i + 1];
+        }
+        else if (fit_mod >= 0)
+        {
+            fprintf(stderr, "%s\n", "Only one algorithm should be provider \n");
+            exit(1);
         }
         else if (!strcmp(argv[i], "-ff") && fit_mod < 0)
         {
@@ -38,10 +45,11 @@ int main(int argc, char const *argv[])
     {
         json_deserialization(filename, fit_mod);
     }
+    else
+    {
+        fprintf(stderr, "%s\n", "Wrong arguments provided \n");
+        exit(1);
+    }
 
-    /*
-     print_list();
-     // print_memory();
-     // getc(stdin); */
     return 0;
 }

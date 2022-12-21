@@ -3,39 +3,28 @@
         {
             "type": "allocate",
             "size": 1000,
-            "process": 1,
             "name": "array"
         },
         {
             "type": "allocate",
             "size": 20,
-            "process": 2,
             "name": "num"
         },
         {
             "type": "free",
-            "process": 1,
             "name": "array"
         },
         {
             "type": "allocate",
             "size": 200,
-            "process": 3,
             "name": "name"
         },
         {
             "type": "free",
-            "process": 2,
-            "name": "num"
-        },
-        {
-            "type": "asdsdasda",
-            "process": 2,
             "name": "num"
         },
         {
             "type": "free",
-            "process": 3,
             "name": "name"
         }
     ]

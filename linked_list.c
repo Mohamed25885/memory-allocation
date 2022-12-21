@@ -18,6 +18,8 @@ Node *getHead()
 
 void print_list()
 {
+    if (*head == NULL)
+        return;
     Node *temp = *head;
 
     while (temp)

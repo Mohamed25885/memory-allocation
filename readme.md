@@ -27,18 +27,16 @@
 
 ## Process Type
 ### 1. allocate
-| Field   | Description                                         |
-| ------- | --------------------------------------------------- |
-| name    | the name of new allocated memory inside the process |
-| size    | the size of new allocated memory inside the process |
-| process | unqiue id for each process                          |
-|         |                                                     |
+| Field | Description                                         |
+| ----- | --------------------------------------------------- |
+| name  | the unique name of new allocated memory             |
+| size  | the size of new allocated memory inside the process |
+|       |                                                     |
 ###  2. free
-| Field   | Description                                                         |
-| ------- | ------------------------------------------------------------------- |
-| name    | the name of already allocated memory inside the process             |
-| process | the id of the process to free the allocated memory made by the name |
-|         |                                                                     |
+| Field | Description                                 |
+| ----- | ------------------------------------------- |
+| name  | the unqiue name of already allocated memory |
+|       |                                             |
 
 **name field should be unqiue for each proccess**
     
