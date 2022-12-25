@@ -11,7 +11,6 @@ int main(int argc, char const *argv[])
     initialize_list();
     initialize_memory();
     int8_t fit_mod = -1;
-    // int8_t has_mode = -1;
     char *filename;
 
     assert(("Invalid Arguments", !(argc % 2)));
@@ -24,18 +23,18 @@ int main(int argc, char const *argv[])
         }
         else if (fit_mod >= 0)
         {
-            fprintf(stderr, "%s\n", "Only one algorithm should be provider \n");
-            exit(1);
+            fprintf(stderr, "%s\n", "Only one algorithm should be provider");
+            abort();
         }
-        else if (!strcmp(argv[i], "-ff") && fit_mod < 0)
+        else if (!strcmp(argv[i], "-ff"))
         {
             fit_mod = FIRST_FIT;
         }
-        else if (!strcmp(argv[i], "-bf") && fit_mod < 0)
+        else if (!strcmp(argv[i], "-bf"))
         {
             fit_mod = BEST_FIT;
         }
-        else if (!strcmp(argv[i], "-wf") && fit_mod < 0)
+        else if (!strcmp(argv[i], "-wf"))
         {
             fit_mod = WORST_FIT;
         }

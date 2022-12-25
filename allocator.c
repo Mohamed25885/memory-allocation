@@ -6,7 +6,6 @@
 #include "linked_list.h"
 #define MAX_SIZE 20000
 
-
 int memory[MAX_SIZE] = {-1};
 u_int32_t global_id = 0;
 
@@ -87,8 +86,8 @@ void *allocate_memory(int size, const char *name, int mode)
 
     if (memory_tracer_counter <= 0)
     {
-        fprintf(stderr, "%s\n", "Requested memory is more than that consecutively available");
-        exit(1);
+        fprintf(stderr, "%s", "Requested memory is more than that consecutively available");
+        abort();
     }
 
     int slot_index;
@@ -113,19 +112,19 @@ void *allocate_memory(int size, const char *name, int mode)
     }
 
     free(memory_tracer);
-    printf("Allocate: (%s)[%d -> %d]\n", name, slot_index, slot_index + size -1);
+    printf("Allocate: (%s)[%d -> %d]\n", name, slot_index, slot_index + size - 1);
     return push(size, slot_index, name);
 }
 
 void free_memory_with_name(const char *name)
 {
     Node *node = find_node_with_name(name);
-    
+
     for (size_t i = node->index; i < (node->size + node->index); i++)
     {
         memory[i] = -1;
     }
-    printf("Free: (%s)[%d -> %d]\n", name, node->index, node->index + node->size -1 );
+    printf("Free: (%s)[%d -> %d]\n", name, node->index, node->index + node->size - 1);
     delete_name(node->name);
 }
 void free_memory(void *address)
