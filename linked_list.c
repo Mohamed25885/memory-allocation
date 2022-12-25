@@ -24,7 +24,7 @@ void print_list()
 
     while (temp)
     {
-        printf("(%s)[%d -> %d]\n", (temp)->name, temp->index, (temp->index + temp->size));
+        printf("(%s)[%d -> %d]\n", (temp)->name, temp->index, (temp->index + temp->size-1));
         temp = (temp)->next;
     }
     printf("\n\n");

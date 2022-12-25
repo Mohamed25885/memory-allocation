@@ -3,6 +3,7 @@
 #include <string.h>
 #include <json-c/json.h>
 #include "allocator.h"
+#include "linked_list.h"
 void run_free_worker(struct json_object *processes_obj);
 void run_allocate_worker(struct json_object *process_array_obj, int mode);
 void json_deserialization(char *filename, int mode)

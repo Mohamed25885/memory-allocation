@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "allocator.h"
 #include "linked_list.h"
-#define MAX_SIZE 6000
+#define MAX_SIZE 20000
 
 
 int memory[MAX_SIZE] = {-1};
@@ -113,7 +113,7 @@ void *allocate_memory(int size, const char *name, int mode)
     }
 
     free(memory_tracer);
-    printf("Allocate: (%s)[%d -> %d]\n", name, slot_index, slot_index + size);
+    printf("Allocate: (%s)[%d -> %d]\n", name, slot_index, slot_index + size -1);
     return push(size, slot_index, name);
 }
 
@@ -125,7 +125,7 @@ void free_memory_with_name(const char *name)
     {
         memory[i] = -1;
     }
-    printf("Free: (%s)[%d -> %d]\n", name, node->index, node->index + node->size);
+    printf("Free: (%s)[%d -> %d]\n", name, node->index, node->index + node->size -1 );
     delete_name(node->name);
 }
 void free_memory(void *address)
