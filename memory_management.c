@@ -19,7 +19,7 @@ int main(int argc, char const *argv[])
     {
         if (!strcmp(argv[i], "-f"))
         {
-            filename = (char *)argv[i + 1];
+            filename = (char *)argv[++i];
         }
         else if (fit_mod >= 0)
         {

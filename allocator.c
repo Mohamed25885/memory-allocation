@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "allocator.h"
 #include "linked_list.h"
-#define MAX_SIZE 20000
+#define MAX_SIZE 6000
 
 int memory[MAX_SIZE] = {-1};
 u_int32_t global_id = 0;
@@ -31,7 +31,7 @@ void *allocate_memory(int size, const char *name, int mode)
 {
 
     assert(("Invalid Memory Allocation Mode", (mode >= BEST_FIT && mode <= FIRST_FIT)));
-    u_int8_t memory_tracer_size = 10;
+    u_int8_t memory_tracer_size = 100;
     global_id++;
     Node *memory_tracer = (Node *)malloc(sizeof(Node) * ((int)ceil(MAX_SIZE / (memory_tracer_size)))), *current = getHead(), *prev = getHead();
 
@@ -48,13 +48,7 @@ void *allocate_memory(int size, const char *name, int mode)
             else
             {
 
-                if (current->index >= size)
-                {
-                    new_size = current->index;
-                    new_index = 0;
-
-                    insert_to_memory_tracer(new_size, new_index, size, memory_tracer, &memory_tracer_size, &memory_tracer_counter);
-                }
+                insert_to_memory_tracer(current->index, 0, size, memory_tracer, &memory_tracer_size, &memory_tracer_counter);
             }
 
             continue;
@@ -86,7 +80,7 @@ void *allocate_memory(int size, const char *name, int mode)
 
     if (memory_tracer_counter <= 0)
     {
-        fprintf(stderr, "%s", "Requested memory is more than that consecutively available");
+        fprintf(stderr, "%s\n", "Requested memory is more than that consecutively available");
         abort();
     }
 
@@ -112,13 +106,17 @@ void *allocate_memory(int size, const char *name, int mode)
     }
 
     free(memory_tracer);
-    printf("Allocate: (%s)[%d -> %d]\n", name, slot_index, slot_index + size - 1);
+    printf("Allocate: (%s - %d)[%d -> %d]\n", name, size, slot_index, slot_index + size - 1);
     return push(size, slot_index, name);
 }
 
 void free_memory_with_name(const char *name)
 {
     Node *node = find_node_with_name(name);
+    if (node == NULL)
+    {
+        return;
+    }
 
     for (size_t i = node->index; i < (node->size + node->index); i++)
     {
@@ -151,9 +149,9 @@ void insert_to_memory_tracer(int new_size, int new_index, int size, Node *memory
 {
     if (new_size >= size)
     {
-        if ((*memory_tracer_counter) >= ((int)ceil(MAX_SIZE / ((*memory_tracer_size) - 2))))
+        if ((*memory_tracer_counter) >= ((int)ceil(MAX_SIZE / ((*memory_tracer_size) - 10))))
         {
-            memory_tracer_size -= 2;
+            memory_tracer_size -= 10;
             memory_tracer = (Node *)realloc(memory_tracer, ((int)ceil(MAX_SIZE / (*memory_tracer_size))));
         }
 
