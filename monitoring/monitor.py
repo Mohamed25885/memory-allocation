@@ -1,3 +1,4 @@
+#THIS PROGRAM RUNS ONLY ON WINDOWS 10/11
 import subprocess
 
 brief = subprocess.check_output(
